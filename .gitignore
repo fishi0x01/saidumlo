@@ -1,0 +1,4 @@
+*.swp
+.secrets.yml
+.saidumlo_cache
+sdl
