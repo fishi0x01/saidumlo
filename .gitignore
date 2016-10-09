@@ -2,3 +2,4 @@
 .secrets.yml
 .saidumlo_cache
 sdl
+test/openssl_test_secret.enc

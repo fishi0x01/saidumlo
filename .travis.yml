@@ -1,0 +1,27 @@
+---
+
+sudo: required
+dist: trusty
+language: python
+python: '2.7'
+go: '1.7'
+
+install:
+  - pip install ansible==${ANSIBLE_VERSION}
+  - go get gopkg.in/yaml.v2
+  - go get gopkg.in/alecthomas/kingpin.v2 
+  - go get github.com/fatih/color
+  - go build -o sdl src/*
+  - mv secrets.yml.example .secrets.yml
+
+script:
+  - ./sdl encrypt
+  - ./sdl decrypt
+  - ./sdl encrypt secA
+  - ./sdl decrypt secA
+
+env:
+  global:
+    - ANSIBLE_VERSION=2.1
+
+...
