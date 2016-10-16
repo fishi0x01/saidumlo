@@ -1,3 +1,6 @@
+### Status
+[![Master branch build status](https://api.travis-ci.org/fishi0x01/saidumlo.svg?branch=master)](https://travis-ci.org/fishi0x01/saidumlo.svg?branch=master)
+
 # SaiDumLo
 
 SaiDumLo is a secret management tool primarily designed for local development. 

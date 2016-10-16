@@ -1,0 +1,40 @@
+---
+
+sudo: required
+dist: trusty
+language: go
+go: '1.7'
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install -y python python-pip
+  - sudo pip install ansible==${ANSIBLE_VERSION}
+  - go get gopkg.in/yaml.v2
+  - go get gopkg.in/alecthomas/kingpin.v2 
+  - go get github.com/fatih/color
+  - go build -o sdl src/*
+  - mv secrets.yml.example .secrets.yml
+  - echo "! grep -q 'ERROR' /tmp/output.txt && (echo 'Pass' && exit 0) || (echo 'Error' && exit 1)" > p_check.sh && chmod +x p_check.sh
+  - echo ""
+
+script:
+  - ./sdl encrypt | tee /tmp/output.txt; ./p_check.sh
+  - if ! grep -q 'openssl secret' test/openssl_test_secret.enc ; then (echo 'Openssl encryption passed' && exit 0) else (echo 'Openssl encryption failed' && exit 1) fi
+  - if ! grep -q 'vault secret' test/vault_test_secret ; then (echo 'Vault encryption passed' && exit 0) else (echo 'Vault encryption failed' && exit 1) fi
+  - ./sdl decrypt | tee /tmp/output.txt; ./p_check.sh
+  - grep -q 'openssl secret' test/openssl_test_secret && (echo 'Openssl decryption passed' && exit 0) || (echo 'Openssl decryption failed' && exit 1)
+  - grep -q 'vault secret' test/vault_test_secret && (echo 'Vault encryption passed' && exit 0) || (echo 'Vault encryption failed' && exit 1) 
+  - ./sdl encrypt secA | tee /tmp/output.txt; ./p_check.sh
+  - if ! grep -q 'openssl secret' test/openssl_test_secret.enc ; then (echo 'Openssl encryption passed' && exit 0) else (echo 'Openssl encryption failed' && exit 1) fi
+  - ./sdl decrypt secA | tee /tmp/output.txt; ./p_check.sh
+  - grep -q 'openssl secret' test/openssl_test_secret && (echo 'Openssl decryption passed' && exit 0) || (echo 'Openssl decryption failed' && exit 1)
+  - ./sdl encrypt secB | tee /tmp/output.txt; ./p_check.sh
+  - if ! grep -q 'vault secret' test/vault_test_secret ; then (echo 'Vault encryption passed' && exit 0) else (echo 'Vault encryption failed' && exit 1) fi
+  - ./sdl decrypt secB | tee /tmp/output.txt; ./p_check.sh
+  - grep -q 'vault secret' test/vault_test_secret && (echo 'Vault decryption passed' && exit 0) || (echo 'Vault decryption failed' && exit 1)
+
+env:
+  global:
+    - ANSIBLE_VERSION=2.1
+
+...
