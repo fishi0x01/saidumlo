@@ -3,3 +3,4 @@
 bin/
 test/prod-foo
 test/prod-ba
+test/vault_pid

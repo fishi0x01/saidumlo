@@ -8,8 +8,8 @@ import (
 
 var (
 	// Ops Ids
-	readOperationId  = "read"
-	writeOperationId = "write"
+	readOperationID  = "read"
+	writeOperationID = "write"
 
 	// cmd config values
 	configFile = ".secrets.yml"
@@ -22,12 +22,12 @@ type CommandWithGroups struct {
 }
 
 func (arg *CommandWithGroups) read(c *kingpin.ParseContext) error {
-	processSecretGroups(readOperationId, arg.secretGroups)
+	processSecretGroups(readOperationID, arg.secretGroups)
 	return nil
 }
 
 func (arg *CommandWithGroups) write(c *kingpin.ParseContext) error {
-	processSecretGroups(writeOperationId, arg.secretGroups)
+	processSecretGroups(writeOperationID, arg.secretGroups)
 	return nil
 }
 

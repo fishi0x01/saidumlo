@@ -47,7 +47,7 @@ func contains(s []string, e string) bool {
 func getMapKeys(m map[string]SecretGroup) []string {
 	var keys []string
 
-	for key, _ := range m {
+	for key := range m {
 		keys = append(keys, key)
 	}
 

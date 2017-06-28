@@ -51,20 +51,20 @@ func saidumlo(configFile string) SaiDumLo {
 	return saidumlo
 }
 
-func (sdl *SaiDumLo) readSecretFromVault(secretMapping SecretMapping) {
-	logInfo("%s read -field=value %s > %s/%s", sdl.Config.VaultBin, secretMapping.Vault, sdl.ConfigDir, secretMapping.Local)
+func (saidumlo *SaiDumLo) readSecretFromVault(secretMapping SecretMapping) {
+	logInfo("%s read -field=value %s > %s/%s", saidumlo.Config.VaultBin, secretMapping.Vault, saidumlo.ConfigDir, secretMapping.Local)
 
 	// TODO: This always overwrites existing file. File should still exist if vault error occurs
-	outfile, fileErr := os.Create(fmt.Sprintf("%s/%s", sdl.ConfigDir, secretMapping.Local))
+	outfile, fileErr := os.Create(fmt.Sprintf("%s/%s", saidumlo.ConfigDir, secretMapping.Local))
 	checkErr(fileErr)
 	defer outfile.Close()
 
 	env := os.Environ()
-	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", sdl.Config.VaultAddress))
+	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.VaultAddress))
 
-	cmd := exec.Command(sdl.Config.VaultBin, "read", "-field=value", secretMapping.Vault)
+	cmd := exec.Command(saidumlo.Config.VaultBin, "read", "-field=value", secretMapping.Vault)
 	cmd.Env = env
-	cmd.Dir = sdl.ConfigDir
+	cmd.Dir = saidumlo.ConfigDir
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = outfile
 	cmd.Stderr = os.Stderr
@@ -72,15 +72,15 @@ func (sdl *SaiDumLo) readSecretFromVault(secretMapping SecretMapping) {
 	checkErr(commandErr)
 }
 
-func (sdl *SaiDumLo) writeSecretToVault(secretMapping SecretMapping) {
-	logInfo("%s write %s value=@%s/%s", sdl.Config.VaultBin, secretMapping.Vault, sdl.ConfigDir, secretMapping.Local)
+func (saidumlo *SaiDumLo) writeSecretToVault(secretMapping SecretMapping) {
+	logInfo("%s write %s value=@%s/%s", saidumlo.Config.VaultBin, secretMapping.Vault, saidumlo.ConfigDir, secretMapping.Local)
 
 	env := os.Environ()
-	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", sdl.Config.VaultAddress))
+	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.VaultAddress))
 
-	cmd := exec.Command(sdl.Config.VaultBin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", sdl.ConfigDir, secretMapping.Local))
+	cmd := exec.Command(saidumlo.Config.VaultBin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", saidumlo.ConfigDir, secretMapping.Local))
 	cmd.Env = env
-	cmd.Dir = sdl.ConfigDir
+	cmd.Dir = saidumlo.ConfigDir
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -99,9 +99,9 @@ func processSecretGroups(method string, secretGroups []string) {
 
 	for _, secretGroupName := range groupsToProcess {
 		for _, secretMapping := range sdl.Config.Groups[secretGroupName].Mappings {
-			if method == writeOperationId {
+			if method == writeOperationID {
 				sdl.writeSecretToVault(secretMapping)
-			} else if method == readOperationId {
+			} else if method == readOperationID {
 				sdl.readSecretFromVault(secretMapping)
 			} else {
 				logError("Unknown operation %s", method)
