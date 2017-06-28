@@ -6,21 +6,44 @@
 
 # SaiDumLo
 
-SaiDumLo is a secret management tool primarily designed for local development. 
-Working locally with different secret groups, each group having a different encryption/decryption mechanisms, can easily become cumbersome. 
-For instance, when writing ansible roles you might have some secrets encrypted with `ansible-vault` and others, such as key files encrypted with `openssl`. 
-Further, you might have complex permission rules (not everyone might be allowed to decrypt all the secrets from the repo) in which case multiple secret keys are necessary which adds even more complexity. 
+SaiDumLo aims to be a client site secret management tool primarily designed for local development. 
 
-SaiDumLo lets you define your secret groups and encryption mechanisms inside a single `secrets.yml` file. 
-Basically, the `secrets.yml` file is like a Makefile for encrypting and decrypting your secrets. 
+Currently, SaiDumLo only interacts as a wrapper for HashiCorp's [vault](https://www.vaultproject.io/) client. 
+It lets you easily define and manage different secret groups like `qa` or `prod` in a single yaml config file. 
 
-## Build
+Example **.secrets.yml:**
+```
+---
+vault_address: "http://127.0.0.1:8200"
+vault_bin: "my/path/to/vault"
+
+groups:
+  qa:
+    secrets:
+    - local: "local/path/to/qa-foo"
+      vault: "secret/qa/qa-foo"
+    - local: "local/path/to/qa-bar"
+      vault: "secret/qa/qa-bar"
+
+  prod:
+    secrets:
+    - local: "local/path/to/prod-foo"
+      vault: "secret/prod/prod-foo"
+```
+
+SaiDumLo handles reads/writes of your secret groups by using the vault client. 
+
+### Build and Test
 
 ```
-go get gopkg.in/yaml.v2
-go get gopkg.in/alecthomas/kingpin.v2 
-go get github.com/fatih/color
-go build -o sdl src/*
+make deps
+make build
+make verify
 ```
 
+Tested with vault `0.7.0` on Ubuntu Xenial.
+
+### TODO
+
+* versioning / rollback capabilities
 

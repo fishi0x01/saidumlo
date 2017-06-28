@@ -1,5 +1,6 @@
 *.swp
 .secrets.yml
-.saidumlo_cache
-sdl
-test/openssl_test_secret.enc
+bin/
+test/prod-foo
+test/prod-ba
+test/vault_pid

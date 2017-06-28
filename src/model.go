@@ -1,10 +1,6 @@
 package main
 
-/********
-* Structures
-*********/
-
-// SaiDumLo ...
+// SaiDumLo root structure
 type SaiDumLo struct {
 	ConfigFileName string
 	ConfigDir      string
@@ -13,45 +9,18 @@ type SaiDumLo struct {
 
 // Config ...
 type Config struct {
-	Encryptions  map[string]Encryption
-	SecretGroups map[string]SecretGroup `yaml:"secretGroups"`
+	Groups       map[string]SecretGroup `yaml:"groups"`
+	VaultAddress string                 `yaml:"vault_address"`
+	VaultBin     string                 `yaml:"vault_bin"`
 }
 
 // SecretGroup ...
 type SecretGroup struct {
-	Encryption string
-	Key        string
-	Secrets    []Secret
+	Mappings []SecretMapping `yaml:"secrets"`
 }
 
-// Secret ...
-type Secret struct {
-	Encrypted string
-	Decrypted string
-}
-
-// CommandSetting ...
-type CommandSetting struct {
-	Args       []string
-	Executable string
-	Env        []EnvVar
-}
-
-// Encryption ...
-type Encryption struct {
-	Encrypt CommandSetting
-	Decrypt CommandSetting
-}
-
-// EnvVar ...
-type EnvVar struct {
-	Name  string
-	Value string
-}
-
-// Mapping ...
-type Mapping struct {
-	Key string
-	In  string
-	Out string
+// SecretMapping ...
+type SecretMapping struct {
+	Local string `yaml:"local"`
+	Vault string `yaml:"vault"`
 }

@@ -1,0 +1,5 @@
+0. test.pre > into one!
+1. Travis
+2. Backup to vault before write
+3. Backup local before read
+4. Vault client downloader
