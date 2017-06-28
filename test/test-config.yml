@@ -1,0 +1,18 @@
+---
+vault_address: "http://127.0.0.1:8200"
+vault_bin: "./../bin/vault"
+
+groups:
+  qa:
+    secrets:
+    - local: "./qa-foo"
+      vault: "secret/test/qa-foo"
+    - local: "./qa-bar"
+      vault: "secret/test/qa-bar"
+
+  prod:
+    secrets:
+    - local: "./prod-foo"
+      vault: "secret/test/qa-foo"
+    - local: "./prod-bar"
+      vault: "secret/test/qa-bar"
