@@ -9,13 +9,19 @@
 SaiDumLo aims to be a client site secret management tool primarily designed for local development. 
 
 Currently, SaiDumLo only interacts as a wrapper for HashiCorp's [vault](https://www.vaultproject.io/) client. 
-It lets you easily define and manage different secret groups like `qa` or `prod` in a single yaml config file. 
+Vault is awesome, but lacks an easy configurable config file to synch your local ops repo with the vault secrets. 
+I always find myself writing and maintaining different `Makefile` commands for different secrets of different stages (qa/staging/live..).
+SaiDumLo lets you easily define and manage different secret groups like `qa` or `prod` in a single yaml config file. 
 
 Example **.secrets.yml:**
 ```
 ---
-vault_address: "http://127.0.0.1:8200"
-vault_bin: "my/path/to/vault"
+vault:
+  address: "http://127.0.0.1:8200"
+  bin: "my/path/to/vault"
+  auth:
+    method: "github"
+    credential_file: "my/path/to/credentials"
 
 groups:
   qa:
@@ -32,6 +38,29 @@ groups:
 ```
 
 SaiDumLo handles reads/writes of your secret groups by using the vault client. 
+Using `sdl read qa` synchronizes your local `qa` secrets with the current ones from the vault 
+and obviously `sdl write qa` writes your local `qa` secrets to the vault. 
+
+Before reading/writing SaiDumLo authenticates with the vault by using the specified method. 
+In the example `.secrets.yml` the `github` method is used, which requires a github auth token from your account. 
+The auth credentials file must contain key/value pairs of the necessary parameters, e.g., for github:
+
+**github.credentials.auth:**
+```
+token=<my-github-token>
+```
+
+For the `userpass` mechanism it should be:
+
+**userpass.credentials.auth:**
+```
+username=<my-user>
+password=<my-password>
+```
+
+Consult the vault [auth documentation](https://www.vaultproject.io/docs/auth/index.html) to see which parameters need to be specified in the credentials file for your auth method. 
+
+**NOTE: Do not forget to add the auth credential file to your .gitignore!**
 
 ### Build and Test
 
@@ -42,8 +71,4 @@ make verify
 ```
 
 Tested with vault `0.7.0` on Ubuntu Xenial.
-
-### TODO
-
-* versioning / rollback capabilities
 
