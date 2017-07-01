@@ -3,9 +3,9 @@
 ###########
 # Run tests
 #
-bin/sdl -f ./test/test-config.yml write qa
+bin/sdl -f ./test/test.config.yml write qa
 sleep 1
-bin/sdl -f ./test/test-config.yml read prod
+bin/sdl -f ./test/test.config.yml read prod
 
 ##############
 # Check result

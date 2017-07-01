@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -52,7 +53,7 @@ func saidumlo(configFile string) SaiDumLo {
 }
 
 func (saidumlo *SaiDumLo) readSecretFromVault(secretMapping SecretMapping) {
-	logInfo("%s read -field=value %s > %s/%s", saidumlo.Config.VaultBin, secretMapping.Vault, saidumlo.ConfigDir, secretMapping.Local)
+	logInfo("%s read -field=value %s > %s/%s", saidumlo.Config.Vault.Bin, secretMapping.Vault, saidumlo.ConfigDir, secretMapping.Local)
 
 	// TODO: This always overwrites existing file. File should still exist if vault error occurs
 	outfile, fileErr := os.Create(fmt.Sprintf("%s/%s", saidumlo.ConfigDir, secretMapping.Local))
@@ -60,9 +61,9 @@ func (saidumlo *SaiDumLo) readSecretFromVault(secretMapping SecretMapping) {
 	defer outfile.Close()
 
 	env := os.Environ()
-	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.VaultAddress))
+	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.Vault.Address))
 
-	cmd := exec.Command(saidumlo.Config.VaultBin, "read", "-field=value", secretMapping.Vault)
+	cmd := exec.Command(saidumlo.Config.Vault.Bin, "read", "-field=value", secretMapping.Vault)
 	cmd.Env = env
 	cmd.Dir = saidumlo.ConfigDir
 	cmd.Stdin = os.Stdin
@@ -73,12 +74,12 @@ func (saidumlo *SaiDumLo) readSecretFromVault(secretMapping SecretMapping) {
 }
 
 func (saidumlo *SaiDumLo) writeSecretToVault(secretMapping SecretMapping) {
-	logInfo("%s write %s value=@%s/%s", saidumlo.Config.VaultBin, secretMapping.Vault, saidumlo.ConfigDir, secretMapping.Local)
+	logInfo("%s write %s value=@%s/%s", saidumlo.Config.Vault.Bin, secretMapping.Vault, saidumlo.ConfigDir, secretMapping.Local)
 
 	env := os.Environ()
-	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.VaultAddress))
+	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.Vault.Address))
 
-	cmd := exec.Command(saidumlo.Config.VaultBin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", saidumlo.ConfigDir, secretMapping.Local))
+	cmd := exec.Command(saidumlo.Config.Vault.Bin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", saidumlo.ConfigDir, secretMapping.Local))
 	cmd.Env = env
 	cmd.Dir = saidumlo.ConfigDir
 	cmd.Stdin = os.Stdin
@@ -88,9 +89,51 @@ func (saidumlo *SaiDumLo) writeSecretToVault(secretMapping SecretMapping) {
 	checkErr(commandErr)
 }
 
+func (saidumlo *SaiDumLo) authenticate() {
+	if saidumlo.Config.Vault.VaultAuth.Method != "" {
+
+		// read credentials from credential file
+		args := []string{"auth", fmt.Sprintf("-method=%s", saidumlo.Config.Vault.VaultAuth.Method)}
+		if file, err := os.Open(fmt.Sprintf("%s/%s", saidumlo.ConfigDir, saidumlo.Config.Vault.VaultAuth.CredentialFilePath)); err == nil {
+
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				args = append(args, scanner.Text())
+			}
+
+			if err = scanner.Err(); err != nil {
+				logFatal("%v", err)
+			}
+
+		} else {
+			logFatal("%v", err)
+		}
+
+		// set environment
+		env := os.Environ()
+		env = append(env, fmt.Sprintf("VAULT_ADDR=%s", saidumlo.Config.Vault.Address))
+
+		// execute command
+		cmd := exec.Command(saidumlo.Config.Vault.Bin, args...)
+		cmd.Env = env
+		cmd.Dir = saidumlo.ConfigDir
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		commandErr := cmd.Run()
+		checkErr(commandErr)
+	} else {
+		logInfo("No auth method defined - skip auth")
+	}
+}
+
 func processSecretGroups(method string, secretGroups []string) {
 	sdl := saidumlo(configFile)
 	logDebug("%+v\n", sdl)
+
+	sdl.authenticate()
 
 	var groupsToProcess = secretGroups
 	if len(secretGroups) == 0 {

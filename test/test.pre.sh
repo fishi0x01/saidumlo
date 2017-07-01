@@ -32,3 +32,10 @@ echo -n "$!" >> ./test/vault_pid
 
 # wait for vault to boot
 sleep 5
+
+# Configure vault
+VAULT_ADDR=http://127.0.0.1:8200/ bin/vault auth-enable userpass
+VAULT_ADDR=http://127.0.0.1:8200/ bin/vault policy-write admin test/test.policy.hcl
+VAULT_ADDR=http://127.0.0.1:8200/ bin/vault write auth/userpass/users/tester \
+    password=tester \
+    policies=admin

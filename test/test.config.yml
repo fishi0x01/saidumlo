@@ -1,6 +1,10 @@
 ---
-vault_address: "http://127.0.0.1:8200"
-vault_bin: "./../bin/vault"
+vault:
+  address: "http://127.0.0.1:8200"
+  bin: "./../bin/vault"
+  auth:
+    method: "userpass"
+    credential_file: "test.credentials.auth"
 
 groups:
   qa:
