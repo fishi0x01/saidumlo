@@ -9,9 +9,21 @@ type SaiDumLo struct {
 
 // Config ...
 type Config struct {
-	Groups       map[string]SecretGroup `yaml:"groups"`
-	VaultAddress string                 `yaml:"vault_address"`
-	VaultBin     string                 `yaml:"vault_bin"`
+	Groups map[string]SecretGroup `yaml:"groups"`
+	Vault  Vault
+}
+
+// Vault ...
+type Vault struct {
+	Address   string
+	Bin       string
+	VaultAuth VaultAuth `yaml:"auth"`
+}
+
+// VaultAuth ...
+type VaultAuth struct {
+	Method             string
+	CredentialFilePath string `yaml:"credential_file"`
 }
 
 // SecretGroup ...
