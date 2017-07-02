@@ -1,3 +1,5 @@
+RELEASE_PLATFORMS := linux darwin
+
 build:
 	go build -o bin/sdl ./src/*
 
@@ -13,14 +15,12 @@ verify:
 
 release: deps build verify
 	echo -n "" > SHA256SUMS
-	env GOOS=linux GOARCH=amd64 go build -o sdl ./src/*
-	zip sdl_${version}_linux_amd64.zip sdl
-	sha256sum sdl_${version}_linux_amd64.zip >> SHA256SUMS
-	rm sdl
-	env GOOS=darwin GOARCH=amd64 go build -o sdl ./src/*
-	zip sdl_${version}_darwin_amd64.zip sdl
-	sha256sum sdl_${version}_darwin_amd64.zip >> SHA256SUMS
-	rm sdl
+	for platform in $(RELEASE_PLATFORMS); do\
+		env GOOS=linux GOARCH=amd64 go build -o sdl ./src/*; \
+		zip sdl_${version}_$${platform}_amd64.zip sdl; \
+		sha256sum sdl_${version}_$${platform}_amd64.zip >> SHA256SUMS; \
+		rm sdl; \
+	done
 
 clean:
 	rm -f test/prod-bar || true

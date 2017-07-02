@@ -5,7 +5,7 @@
 #
 bin/sdl -f ./test/test.config.yml write qa
 sleep 1
-bin/sdl -f ./test/test.config.yml read prod
+bin/sdl -b testB -f ./test/test.config.yml read prod
 
 ##############
 # Check result
