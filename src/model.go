@@ -37,9 +37,3 @@ type SecretMapping struct {
 	Local string `yaml:"local"`
 	Vault string `yaml:"vault"`
 }
-
-//
-type SecretBackup struct {
-	Local string `yaml:"local"`
-	Vault string `yaml:"vault"`
-}

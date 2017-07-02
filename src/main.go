@@ -17,7 +17,7 @@ var (
 	vaultID    = ""
 )
 
-// CommandWithGroups represents a command which addresses specific secret groups.
+// CommandWithSecretGroups represents a command which addresses specific secret groups.
 type CommandWithSecretGroups struct {
 	SecretGroups []string
 	VaultID      string
