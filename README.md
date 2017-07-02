@@ -16,30 +16,44 @@ SaiDumLo lets you easily define and manage different secret groups like `qa` or 
 Example **.secrets.yml:**
 ```
 ---
-vault:
-  address: "http://127.0.0.1:8200"
-  bin: "my/path/to/vault"
-  auth:
-    method: "github"
-    credential_file: "my/path/to/credentials"
-
-groups:
-  qa:
+vaults:
+  vaultA:
+    default: true
+    address: "http://127.0.0.1:8200"
+    bin: "my/path/to/vault"
+    auth:
+      method: "github"
+      credential_file: "my/path/to/credentials"
     secrets:
-    - local: "local/path/to/qa-foo"
-      vault: "secret/qa/qa-foo"
-    - local: "local/path/to/qa-bar"
-      vault: "secret/qa/qa-bar"
+      qa:
+        mappings:
+        - local: "local/path/to/qa-foo"
+          vault: "secret/qa/qa-foo"
+        - local: "local/path/to/qa-bar"
+          vault: "secret/qa/qa-bar"
 
-  prod:
+      prod:
+        mappings:
+        - local: "local/path/to/prod-foo"
+          vault: "secret/prod/prod-foo"
+  
+  vaultB:
+    address: "https://vault.b.int.company.local:8200"
+    bin: "my/path/to/vault"
+    auth:
+      method: "github"
+      credential_file: "my/path/to/credentials"
     secrets:
-    - local: "local/path/to/prod-foo"
-      vault: "secret/prod/prod-foo"
+      admin:
+        mappings:
+        - local: "local/path/to/admin-secret"
+          vault: "secret/admin/admin-secret"
+
 ```
 
 SaiDumLo handles reads/writes of your secret groups by using the vault client. 
-Using `sdl read qa` synchronizes your local `qa` secrets with the current ones from the vault 
-and obviously `sdl write qa` writes your local `qa` secrets to the vault. 
+Using `sdl read qa` synchronizes your local `qa` secrets with the current ones from the default vault (`vaultA`). 
+`sdl -b vaultB write admin` writes your local `admin` secrets to `vaultB`. 
 
 Before reading/writing SaiDumLo authenticates with the vault by using the specified method. 
 In the example `.secrets.yml` the `github` method is used, which requires a github auth token from your account. 
