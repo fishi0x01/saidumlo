@@ -1,22 +1,43 @@
 ---
-vault:
-  address: "http://127.0.0.1:8200"
-  bin: "./../bin/vault"
-  auth:
-    method: "userpass"
-    credential_file: "test.credentials.auth"
-
-groups:
-  qa:
+vaults:
+  testA:
+    default: true
+    address: "http://127.0.0.1:8200"
+    bin: "./../bin/vault"
+    auth:
+      method: "userpass"
+      credential_file: "test.credentials.auth"
     secrets:
-    - local: "./qa-foo"
-      vault: "secret/test/qa-foo"
-    - local: "./qa-bar"
-      vault: "secret/test/qa-bar"
+      qa:
+        mappings:
+        - local: "./qa-foo"
+          vault: "secret/test/qa-foo"
+        - local: "./qa-bar"
+          vault: "secret/test/qa-bar"
+      prod:
+        mappings:
+        - local: "./prod-foo"
+          vault: "secret/test/qa-foo"
+        - local: "./prod-bar"
+          vault: "secret/test/qa-bar"
 
-  prod:
+  testB:
+    address: "http://127.0.0.1:8200"
+    bin: "./../bin/vault"
+    auth:
+      method: "userpass"
+      credential_file: "test.credentials.auth"
     secrets:
-    - local: "./prod-foo"
-      vault: "secret/test/qa-foo"
-    - local: "./prod-bar"
-      vault: "secret/test/qa-bar"
+      qa:
+        mappings:
+        - local: "./qa-foo"
+          vault: "secret/test/qa-foo"
+        - local: "./qa-bar"
+          vault: "secret/test/qa-bar"
+      prod:
+        mappings:
+        - local: "./prod-foo"
+          vault: "secret/test/qa-foo"
+        - local: "./prod-bar"
+          vault: "secret/test/qa-bar"
+
