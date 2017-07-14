@@ -1,12 +1,14 @@
 RELEASE_PLATFORMS := linux darwin
+VERSION := `git describe --tags`
 
 build:
-	go build -o bin/sdl ./src/*
+	go build -ldflags "-X main.sdlVersion=`git describe --tags`" -o bin/sdl ./src/main/*
 
 deps:
 	go get gopkg.in/alecthomas/kingpin.v2
 	go get github.com/fatih/color
 	go get gopkg.in/yaml.v2
+	go get github.com/mitchellh/gox
 
 verify:
 	./test/test.pre.sh
@@ -15,11 +17,11 @@ verify:
 
 release: deps build verify
 	echo -n "" > SHA256SUMS
+	${GOPATH}/bin/gox -ldflags="-X main.sdlVersion=`git describe --tags`" -osarch="linux/amd64" -osarch="darwin/amd64" -output="sdl_${VERSION}_{{.OS}}_{{.Arch}}" ./src/main/
 	for platform in $(RELEASE_PLATFORMS); do\
-		env GOOS=linux GOARCH=amd64 go build -o sdl ./src/*; \
-		zip sdl_${version}_$${platform}_amd64.zip sdl; \
-		sha256sum sdl_${version}_$${platform}_amd64.zip >> SHA256SUMS; \
-		rm sdl; \
+		zip sdl_${VERSION}_$${platform}_amd64.zip sdl_${VERSION}_$${platform}_amd64; \
+		sha256sum sdl_${VERSION}_$${platform}_amd64.zip >> SHA256SUMS; \
+		rm sdl_${VERSION}_$${platform}_amd64; \
 	done
 
 clean:

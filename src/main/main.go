@@ -7,6 +7,8 @@ import (
 )
 
 var (
+	sdlVersion = ""
+
 	// Ops Ids
 	readOperationID  = "read"
 	writeOperationID = "write"
@@ -23,6 +25,11 @@ type CommandWithSecretGroups struct {
 	VaultID      string
 }
 
+func printVersion(c *kingpin.ParseContext) error {
+	logInfo(sdlVersion)
+	return nil
+}
+
 func (arg *CommandWithSecretGroups) read(c *kingpin.ParseContext) error {
 	arg.VaultID = vaultID
 	arg.processCommandWithSecretGroups(readOperationID)
@@ -36,6 +43,9 @@ func (arg *CommandWithSecretGroups) write(c *kingpin.ParseContext) error {
 }
 
 func configureCommands(app *kingpin.Application) {
+	// version
+	app.Command("version", "Print the version.").Action(printVersion)
+
 	// read
 	readArg := &CommandWithSecretGroups{}
 	readCmd := app.Command("read", "Read secret groups.").Action(readArg.read)
