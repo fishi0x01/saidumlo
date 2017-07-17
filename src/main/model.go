@@ -9,16 +9,16 @@ type SaiDumLo struct {
 
 // Config ...
 type Config struct {
-	Vaults map[string]Vault `yaml:"vaults"`
+	Vaults       map[string]Vault       `yaml:"vaults"`
+	SecretGroups map[string]SecretGroup `yaml:"secrets"`
 }
 
 // Vault ...
 type Vault struct {
-	Default      bool
-	Address      string
-	Bin          string
-	VaultAuth    VaultAuth              `yaml:"auth"`
-	SecretGroups map[string]SecretGroup `yaml:"secrets"`
+	Default   bool
+	Address   string
+	Bin       string
+	VaultAuth VaultAuth `yaml:"auth"`
 }
 
 // VaultAuth ...

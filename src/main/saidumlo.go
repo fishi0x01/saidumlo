@@ -175,11 +175,11 @@ func (cwsg *CommandWithSecretGroups) processCommandWithSecretGroups(method strin
 
 	var groupsToProcess = cwsg.SecretGroups
 	if len(cwsg.SecretGroups) == 0 {
-		groupsToProcess = getMapKeys(vault.SecretGroups)
+		groupsToProcess = getMapKeys(sdl.Config.SecretGroups)
 	}
 
 	for _, secretGroupName := range groupsToProcess {
-		for _, secretMapping := range vault.SecretGroups[secretGroupName].Mappings {
+		for _, secretMapping := range sdl.Config.SecretGroups[secretGroupName].Mappings {
 			if method == writeOperationID {
 				vault.writeSecretMapping(secretMapping)
 			} else if method == readOperationID {
