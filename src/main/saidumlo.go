@@ -103,17 +103,17 @@ func (vault *Vault) readSecretMapping(secretMapping SecretMapping) {
 	checkErr(commandErr)
 }
 
-func (vault *Vault) writeSecretMapping(secretMapping SecretMapping, leaseTtl string) {
-	if leaseTtl != "" {
-		leaseTtl = fmt.Sprintf("ttl=%s", leaseTtl)
+func (vault *Vault) writeSecretMapping(secretMapping SecretMapping, leaseTTL string) {
+	if leaseTTL != "" {
+		leaseTTL = fmt.Sprintf("ttl=%s", leaseTTL)
 	}
 
-	logInfo("%s write %s value=@%s/%s %s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local, leaseTtl)
+	logInfo("%s write %s value=@%s/%s %s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local, leaseTTL)
 
 	env := os.Environ()
 	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", vault.Address))
 
-	cmd := exec.Command(vault.Bin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", configDir, secretMapping.Local), leaseTtl)
+	cmd := exec.Command(vault.Bin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", configDir, secretMapping.Local), leaseTTL)
 	cmd.Env = env
 	cmd.Dir = configDir
 	cmd.Stdin = os.Stdin
@@ -183,10 +183,10 @@ func (cwsg *CommandWithSecretGroups) processCommandWithSecretGroups(method strin
 	}
 
 	for _, secretGroupName := range groupsToProcess {
-		var leaseTtl = sdl.Config.SecretGroups[secretGroupName].LeaseTtl
+		var leaseTTL = sdl.Config.SecretGroups[secretGroupName].LeaseTTL
 		for _, secretMapping := range sdl.Config.SecretGroups[secretGroupName].Mappings {
 			if method == writeOperationID {
-				vault.writeSecretMapping(secretMapping, leaseTtl)
+				vault.writeSecretMapping(secretMapping, leaseTTL)
 			} else if method == readOperationID {
 				vault.readSecretMapping(secretMapping)
 			} else {

@@ -30,7 +30,7 @@ type VaultAuth struct {
 // SecretGroup ...
 type SecretGroup struct {
 	Mappings []SecretMapping `yaml:"mappings"`
-	LeaseTtl string          `yaml:"lease_ttl"`
+	LeaseTTL string          `yaml:"lease_ttl"`
 }
 
 // SecretMapping ...
