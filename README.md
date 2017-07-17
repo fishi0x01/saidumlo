@@ -76,8 +76,6 @@ Consult the vault [auth documentation](https://www.vaultproject.io/docs/auth/ind
 ### Build and Test
 
 ```
-make deps
-make build
 make verify
 ```
 
