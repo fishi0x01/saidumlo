@@ -15,21 +15,22 @@ type Config struct {
 
 // Vault ...
 type Vault struct {
-	Default   bool
-	Address   string
-	Bin       string
+	Default   bool      `yaml:"default"`
+	Address   string    `yaml:"address"`
+	Bin       string    `yaml:"bin"`
 	VaultAuth VaultAuth `yaml:"auth"`
 }
 
 // VaultAuth ...
 type VaultAuth struct {
-	Method             string
+	Method             string `yaml:"method"`
 	CredentialFilePath string `yaml:"credential_file"`
 }
 
 // SecretGroup ...
 type SecretGroup struct {
-	Mappings []SecretMapping
+	Mappings []SecretMapping `yaml:"mappings"`
+	LeaseTtl string          `yaml:"lease_ttl"`
 }
 
 // SecretMapping ...

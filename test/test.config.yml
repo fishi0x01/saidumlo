@@ -17,6 +17,7 @@ vaults:
 
 secrets:
  qa:
+   lease_ttl: "1h"
    mappings:
    - local: "./qa-foo"
      vault: "secret/test/qa-foo"
