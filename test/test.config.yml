@@ -7,19 +7,6 @@ vaults:
     auth:
       method: "userpass"
       credential_file: "test.credentials.auth"
-    secrets:
-      qa:
-        mappings:
-        - local: "./qa-foo"
-          vault: "secret/test/qa-foo"
-        - local: "./qa-bar"
-          vault: "secret/test/qa-bar"
-      prod:
-        mappings:
-        - local: "./prod-foo"
-          vault: "secret/test/qa-foo"
-        - local: "./prod-bar"
-          vault: "secret/test/qa-bar"
 
   testB:
     address: "http://127.0.0.1:8200"
@@ -27,17 +14,17 @@ vaults:
     auth:
       method: "userpass"
       credential_file: "test.credentials.auth"
-    secrets:
-      qa:
-        mappings:
-        - local: "./qa-foo"
-          vault: "secret/test/qa-foo"
-        - local: "./qa-bar"
-          vault: "secret/test/qa-bar"
-      prod:
-        mappings:
-        - local: "./prod-foo"
-          vault: "secret/test/qa-foo"
-        - local: "./prod-bar"
-          vault: "secret/test/qa-bar"
 
+secrets:
+ qa:
+   mappings:
+   - local: "./qa-foo"
+     vault: "secret/test/qa-foo"
+   - local: "./qa-bar"
+     vault: "secret/test/qa-bar"
+ prod:
+   mappings:
+   - local: "./prod-foo"
+     vault: "secret/test/qa-foo"
+   - local: "./prod-bar"
+     vault: "secret/test/qa-bar"
