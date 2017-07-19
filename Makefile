@@ -19,9 +19,10 @@ release: deps build verify
 	echo -n "" > SHA256SUMS
 	${GOPATH}/bin/gox -ldflags="-X main.sdlVersion=`git describe --tags`" -osarch="linux/amd64" -osarch="darwin/amd64" -output="sdl_${VERSION}_{{.OS}}_{{.Arch}}" ./src/main/
 	for platform in $(RELEASE_PLATFORMS); do\
-		zip sdl_${VERSION}_$${platform}_amd64.zip sdl_${VERSION}_$${platform}_amd64; \
+		mv sdl_${VERSION}_$${platform}_amd64 sdl; \
+		zip sdl_${VERSION}_$${platform}_amd64.zip sdl; \
 		sha256sum sdl_${VERSION}_$${platform}_amd64.zip >> SHA256SUMS; \
-		rm sdl_${VERSION}_$${platform}_amd64; \
+		rm sdl; \
 	done
 
 clean:
