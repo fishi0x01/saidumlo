@@ -15,7 +15,7 @@ if ! diff -q test/qa-foo test/create/prod-foo &>/dev/null; then
    exit 1
 fi
 
-if ! diff -q test/qa-bar test/create2/prod-bar &>/dev/null; then
+if ! diff -q test/qa-bar test/create2/many/levels/prod-bar &>/dev/null; then
    echo "Test failed!"
    exit 1
 fi

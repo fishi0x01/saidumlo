@@ -84,7 +84,7 @@ func saidumlo(configFile string) SaiDumLo {
  ***********/
 func createDirIfMissing(path string) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.FileMode(0775))
+		os.MkdirAll(path, os.FileMode(0775))
 	}
 }
 
