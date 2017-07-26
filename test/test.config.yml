@@ -25,7 +25,9 @@ secrets:
      vault: "secret/test/qa-bar"
  prod:
    mappings:
-   - local: "./prod-foo"
+   - local: "./create/prod-foo"
      vault: "secret/test/qa-foo"
-   - local: "./prod-bar"
+   - local: "./create2/prod-bar"
      vault: "secret/test/qa-bar"
+   - local: "./create/prod-fooo"
+     vault: "secret/test/qa-foo"

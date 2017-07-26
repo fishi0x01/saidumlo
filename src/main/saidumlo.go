@@ -79,11 +79,22 @@ func saidumlo(configFile string) SaiDumLo {
 	return saidumlo
 }
 
+/***********
+ * Helpers
+ ***********/
+func createDirIfMissing(path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, os.FileMode(0775))
+	}
+}
+
 /***************************
  * Vault interaction
  ***************************/
 func (vault *Vault) readSecretMapping(secretMapping SecretMapping) {
 	logInfo("%s read -field=value %s > %s/%s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local)
+
+	createDirIfMissing(fmt.Sprintf("%s/%s", configDir, filepath.Dir(secretMapping.Local)))
 
 	// TODO: This always overwrites existing file. File should still exist if vault error occurs
 	outfile, fileErr := os.Create(fmt.Sprintf("%s/%s", configDir, secretMapping.Local))
