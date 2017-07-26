@@ -1,3 +1,9 @@
+## 0.2.1 (Jul 26, 2017)
+
+IMPROVEMENTS:
+
+* On read sdl creates the local directory specified in the .secrets.yml if it doesn't exist
+
 ## 0.2.0 (Jul 17, 2017)
 
 BACKWARDS INCOMPATIBILITIES / NOTES:
