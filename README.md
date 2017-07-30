@@ -81,5 +81,3 @@ Consult the vault [auth documentation](https://www.vaultproject.io/docs/auth/ind
 make verify
 ```
 
-Tested with vault `0.7.0` on Ubuntu Xenial.
-

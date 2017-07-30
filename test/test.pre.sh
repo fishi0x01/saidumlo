@@ -3,9 +3,22 @@ set -e
 set -o pipefail
 set -o nounset
 
+curos=$( uname )
+
+if [ ${curos} == 'Darwin' ]; then
+    platform='darwin'
+    md='md5 -r'
+elif [ ${curos} == 'Linux' ]; then
+    platform='linux'
+    md='md5sum'
+else
+    echo "   platform not supported" >&2
+	exit 1
+fi
+
 VAULT_VERSION="0.7.0"
 VAULT_DOWNLOAD_BASE_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}"
-VAULT_ZIP="vault_${VAULT_VERSION}_linux_amd64.zip"
+VAULT_ZIP="vault_${VAULT_VERSION}_${platform}_amd64.zip"
 
 ################
 # Download Vault
