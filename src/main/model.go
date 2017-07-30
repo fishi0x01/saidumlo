@@ -31,10 +31,12 @@ type VaultAuth struct {
 type SecretGroup struct {
 	Mappings []SecretMapping `yaml:"mappings"`
 	LeaseTTL string          `yaml:"lease_ttl"`
+	Mod      int             `yaml:"mod"`
 }
 
 // SecretMapping ...
 type SecretMapping struct {
 	Local string `yaml:"local"`
 	Vault string `yaml:"vault"`
+	Mod   int    `yaml:"mod"`
 }
