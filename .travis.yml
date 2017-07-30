@@ -1,6 +1,10 @@
 ---
-
-dist: xenial
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+    - os: osx
+      
 language: go
 go: '1.7'
 
