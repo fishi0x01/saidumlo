@@ -95,7 +95,7 @@ func (vault *Vault) readSecretMapping(secretMapping SecretMapping, groupMod int)
 	logInfo("%s read -field=value %s > %s/%s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local)
 
 	// determine file mod
-	var mod = 0755
+	var mod = 0750 // default
 	if secretMapping.Mod != 0 {
 		mod = secretMapping.Mod
 	} else if groupMod != 0 {
