@@ -24,6 +24,7 @@ secrets:
    - local: "./qa-bar"
      vault: "secret/test/qa-bar"
  prod:
+   mod: 0740
    mappings:
    - local: "./create/prod-foo"
      vault: "secret/test/qa-foo"
@@ -31,3 +32,4 @@ secrets:
      vault: "secret/test/qa-bar"
    - local: "./create/many/levels/prod-fooo"
      vault: "secret/test/qa-foo"
+     mod: 0600

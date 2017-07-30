@@ -35,11 +35,13 @@ vaults:
 secrets:
   qa:
     lease_ttl: "1h"
+    mod: 0600
     mappings:
     - local: "local/path/to/qa-foo"
       vault: "secret/qa/qa-foo"
     - local: "local/path/to/qa-bar"
       vault: "secret/qa/qa-bar"
+      mod: 0755
 
   prod:
     mappings:

@@ -91,8 +91,17 @@ func createDirIfMissing(path string) {
 /***************************
  * Vault interaction
  ***************************/
-func (vault *Vault) readSecretMapping(secretMapping SecretMapping) {
+func (vault *Vault) readSecretMapping(secretMapping SecretMapping, groupMod int) {
 	logInfo("%s read -field=value %s > %s/%s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local)
+
+	// determine file mod
+	var mod = 0750 // default
+	if secretMapping.Mod != 0 {
+		mod = secretMapping.Mod
+	} else if groupMod != 0 {
+		mod = groupMod
+	}
+	secretFileMode := os.FileMode(mod)
 
 	createDirIfMissing(fmt.Sprintf("%s/%s", configDir, filepath.Dir(secretMapping.Local)))
 
@@ -100,6 +109,10 @@ func (vault *Vault) readSecretMapping(secretMapping SecretMapping) {
 	outfile, fileErr := os.Create(fmt.Sprintf("%s/%s", configDir, secretMapping.Local))
 	checkErr(fileErr)
 	defer outfile.Close()
+
+	// set file permissions
+	modErr := outfile.Chmod(secretFileMode)
+	checkErr(modErr)
 
 	env := os.Environ()
 	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", vault.Address))
@@ -195,11 +208,12 @@ func (cwsg *CommandWithSecretGroups) processCommandWithSecretGroups(method strin
 
 	for _, secretGroupName := range groupsToProcess {
 		var leaseTTL = sdl.Config.SecretGroups[secretGroupName].LeaseTTL
+		var groupMod = sdl.Config.SecretGroups[secretGroupName].Mod
 		for _, secretMapping := range sdl.Config.SecretGroups[secretGroupName].Mappings {
 			if method == writeOperationID {
 				vault.writeSecretMapping(secretMapping, leaseTTL)
 			} else if method == readOperationID {
-				vault.readSecretMapping(secretMapping)
+				vault.readSecretMapping(secretMapping, groupMod)
 			} else {
 				logError("Unknown operation %s", method)
 			}
