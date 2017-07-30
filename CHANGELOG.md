@@ -1,3 +1,9 @@
+## ?.?.? (??? ??, 2017)
+
+IMPROVEMENTS:
+
+* Allow to specify chmod settings of local copy
+
 ## 0.2.2 (Jul 26, 2017)
 
 BUGFIXES:
