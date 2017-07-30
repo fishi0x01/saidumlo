@@ -2,7 +2,7 @@
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: trusty
     - os: osx
       
 language: go
