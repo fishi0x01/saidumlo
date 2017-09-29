@@ -33,6 +33,12 @@ vaults:
       credential_file: "my/path/to/credentials"
 
 secrets:
+  secretTree:
+    lease_ttl: "2h"
+  mappings:
+  - local: "local/secretTree/*"
+    vault: "secret/vaultTree/remote/*"
+
   qa:
     lease_ttl: "1h"
     mod: 0600

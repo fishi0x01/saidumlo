@@ -3,6 +3,7 @@
 IMPROVEMENTS:
 
 * Allow to specify chmod settings of local copy
+* Allow wildcard `*` in paths to describe subtree
 
 ## 0.2.2 (Jul 26, 2017)
 
