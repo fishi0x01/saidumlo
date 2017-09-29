@@ -3,6 +3,10 @@
 ###########
 # Run tests
 #
+bin/sdl -f ./test/test.config.yml write tree-write
+sleep 1
+bin/sdl -f ./test/test.config.yml read tree-read
+sleep 1
 bin/sdl -f ./test/test.config.yml write qa
 sleep 1
 bin/sdl -b testB -f ./test/test.config.yml read prod
@@ -18,6 +22,21 @@ if ! diff -q test/qa-foo test/create/prod-foo &>/dev/null; then
 fi
 
 if ! diff -q test/qa-bar test/create2/many/levels/prod-bar &>/dev/null; then
+   echo "Test failed!"
+   exit 1
+fi
+
+if ! diff -q test/createTree/a/a test/secretTree/a/a &>/dev/null; then
+   echo "Test failed!"
+   exit 1
+fi
+
+if ! diff -q test/createTree/b/c test/secretTree/b/c &>/dev/null; then
+   echo "Test failed!"
+   exit 1
+fi
+
+if ! diff -q test/createTree/d test/secretTree/d &>/dev/null; then
    echo "Test failed!"
    exit 1
 fi

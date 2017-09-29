@@ -16,20 +16,31 @@ vaults:
       credential_file: "test.credentials.auth"
 
 secrets:
- qa:
-   lease_ttl: "1h"
-   mappings:
-   - local: "./qa-foo"
-     vault: "secret/test/qa-foo"
-   - local: "./qa-bar"
-     vault: "secret/test/qa-bar"
- prod:
-   mod: 0740
-   mappings:
-   - local: "./create/prod-foo"
-     vault: "secret/test/qa-foo"
-   - local: "./create2/many/levels/prod-bar"
-     vault: "secret/test/qa-bar"
-   - local: "./create/many/levels/prod-fooo"
-     vault: "secret/test/qa-foo"
-     mod: 0600
+  tree-write:
+    mappings:
+    - local: "./secretTree/*"
+      vault: "secret/secretTree/*"
+
+  tree-read:
+    mappings:
+    - local: "./createTree/*"
+      vault: "secret/secretTree/*"
+
+  qa:
+    lease_ttl: "1h"
+    mappings:
+    - local: "./qa-foo"
+      vault: "secret/test/qa-foo"
+    - local: "./qa-bar"
+      vault: "secret/test/qa-bar"
+  prod:
+    mod: 0740
+    mappings:
+    - local: "./create/prod-foo"
+      vault: "secret/test/qa-foo"
+    - local: "./create2/many/levels/prod-bar"
+      vault: "secret/test/qa-bar"
+    - local: "./create/many/levels/prod-fooo"
+      vault: "secret/test/qa-foo"
+      mod: 0600
+

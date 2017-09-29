@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -88,8 +89,82 @@ func createDirIfMissing(path string) {
 	}
 }
 
+func (vault *Vault) walkVaultPath(vaultPath string, localPath string, rootMapping SecretMapping) []SecretMapping {
+
+	mappingList := []SecretMapping{}
+
+	// get all elements in current path
+	env := os.Environ()
+	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", vault.Address))
+
+	cmd := exec.Command(vault.Bin, "list", "--format=yaml", vaultPath)
+	cmd.Env = env
+	cmd.Dir = configDir
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	output, commandErr := cmd.Output()
+	checkErr(commandErr)
+
+	elements := []string{}
+	e := yaml.Unmarshal(output, &elements)
+	checkErr(e)
+
+	// go through each element
+	for _, element := range elements {
+		elementVaultPath := fmt.Sprintf("%s%s", vaultPath, element)
+		elementLocalPath := fmt.Sprintf("%s%s", localPath, element)
+		if strings.HasSuffix(element, "/") {
+			// dir
+			mappingList = append(mappingList, vault.walkVaultPath(elementVaultPath, elementLocalPath, rootMapping)...)
+		} else {
+			// file
+			mappingList = append(mappingList, SecretMapping{Local: elementLocalPath, Vault: elementVaultPath, Mod: rootMapping.Mod})
+		}
+	}
+	return mappingList
+}
+
+func (vault *Vault) generateReadMappingList(secretMapping SecretMapping) []SecretMapping {
+	mappingList := []SecretMapping{}
+
+	if strings.HasSuffix(secretMapping.Vault, "*") {
+		cleanLocalPathString := strings.Replace(secretMapping.Local, "*", "", -1)
+		cleanVaultPathString := strings.Replace(secretMapping.Vault, "*", "", -1)
+		mappingList = vault.walkVaultPath(cleanVaultPathString, cleanLocalPathString, secretMapping)
+	} else {
+		mappingList = append(mappingList, secretMapping)
+	}
+
+	return mappingList
+}
+
+func (vault *Vault) generateWriteMappingList(secretMapping SecretMapping) []SecretMapping {
+	mappingList := []SecretMapping{}
+
+	if strings.HasSuffix(secretMapping.Local, "*") {
+		cleanLocalPathString := strings.Replace(secretMapping.Local, "*", "", -1)
+		cleanVaultPathString := strings.Replace(secretMapping.Vault, "*", "", -1)
+		searchDir := fmt.Sprintf("%s/%s", configDir, filepath.Dir(cleanLocalPathString))
+		err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
+			if f.Mode().IsRegular() {
+				relFilePath, rErr := filepath.Rel(searchDir, path)
+				checkErr(rErr)
+				localMappingPath := fmt.Sprintf("%s%s", cleanLocalPathString, relFilePath)
+				vaultMappingPath := fmt.Sprintf("%s%s", cleanVaultPathString, relFilePath)
+				mappingList = append(mappingList, SecretMapping{Local: localMappingPath, Vault: vaultMappingPath, Mod: secretMapping.Mod})
+			}
+			return nil
+		})
+		checkErr(err)
+	} else {
+		mappingList = append(mappingList, secretMapping)
+	}
+
+	return mappingList
+}
+
 /***************************
- * Vault interaction
+ * Read / Write to Vault
  ***************************/
 func (vault *Vault) readSecretMapping(secretMapping SecretMapping, groupMod int) {
 	logInfo("%s read -field=value %s > %s/%s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local)
@@ -211,9 +286,17 @@ func (cwsg *CommandWithSecretGroups) processCommandWithSecretGroups(method strin
 		var groupMod = sdl.Config.SecretGroups[secretGroupName].Mod
 		for _, secretMapping := range sdl.Config.SecretGroups[secretGroupName].Mappings {
 			if method == writeOperationID {
-				vault.writeSecretMapping(secretMapping, leaseTTL)
+				// generate SecretMapping list (handle possible wildcards in paths)
+				mappingList := vault.generateWriteMappingList(secretMapping)
+				for _, mapping := range mappingList {
+					vault.writeSecretMapping(mapping, leaseTTL)
+				}
 			} else if method == readOperationID {
-				vault.readSecretMapping(secretMapping, groupMod)
+				// generate SecretMapping list (handle possible wildcards in paths)
+				mappingList := vault.generateReadMappingList(secretMapping)
+				for _, mapping := range mappingList {
+					vault.readSecretMapping(mapping, groupMod)
+				}
 			} else {
 				logError("Unknown operation %s", method)
 			}
