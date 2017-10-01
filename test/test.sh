@@ -11,11 +11,24 @@ bin/sdl -f ./test/test.config.yml write qa
 sleep 1
 bin/sdl -b testB -f ./test/test.config.yml read prod
 
+
+zip ./test/zipTest.zip ./test/zipTest
+bin/sdl -f ./test/test.config.yml write zipFileWrite
+sleep 1
+bin/sdl -f ./test/test.config.yml read zipFileRead
+sleep 1
+unzip -o ./test/tmpRead/zipTestRead.zip -d ./test/tmpRead/
+
 ##############
 # Check result
 #
 
 ### File contents
+if ! diff -q test/zipTest test/tmpRead/test/zipTest &>/dev/null; then
+   echo "Test failed!"
+   exit 1
+fi
+
 if ! diff -q test/qa-foo test/create/prod-foo &>/dev/null; then
    echo "Test failed!"
    exit 1
