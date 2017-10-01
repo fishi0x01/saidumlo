@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -118,7 +120,7 @@ func (vault *Vault) walkVaultPath(vaultPath string, localPath string, rootMappin
 			mappingList = append(mappingList, vault.walkVaultPath(elementVaultPath, elementLocalPath, rootMapping)...)
 		} else {
 			// file
-			mappingList = append(mappingList, SecretMapping{Local: elementLocalPath, Vault: elementVaultPath, Mod: rootMapping.Mod})
+			mappingList = append(mappingList, SecretMapping{Local: elementLocalPath, Vault: elementVaultPath, Mod: rootMapping.Mod, Base64: rootMapping.Base64})
 		}
 	}
 	return mappingList
@@ -151,7 +153,7 @@ func (vault *Vault) generateWriteMappingList(secretMapping SecretMapping) []Secr
 				checkErr(rErr)
 				localMappingPath := fmt.Sprintf("%s%s", cleanLocalPathString, relFilePath)
 				vaultMappingPath := fmt.Sprintf("%s%s", cleanVaultPathString, relFilePath)
-				mappingList = append(mappingList, SecretMapping{Local: localMappingPath, Vault: vaultMappingPath, Mod: secretMapping.Mod})
+				mappingList = append(mappingList, SecretMapping{Local: localMappingPath, Vault: vaultMappingPath, Mod: secretMapping.Mod, Base64: secretMapping.Base64})
 			}
 			return nil
 		})
@@ -161,6 +163,16 @@ func (vault *Vault) generateWriteMappingList(secretMapping SecretMapping) []Secr
 	}
 
 	return mappingList
+}
+
+func getFileContentEncoded(secretMapping SecretMapping) []byte {
+	byteData, err := ioutil.ReadFile(fmt.Sprintf("%s/%s", configDir, secretMapping.Local))
+	checkErr(err)
+	if secretMapping.Base64 {
+		byteData = []byte(base64.StdEncoding.EncodeToString(byteData))
+	}
+
+	return byteData
 }
 
 /***************************
@@ -180,14 +192,8 @@ func (vault *Vault) readSecretMapping(secretMapping SecretMapping, groupMod int)
 
 	createDirIfMissing(fmt.Sprintf("%s/%s", configDir, filepath.Dir(secretMapping.Local)))
 
-	// TODO: This always overwrites existing file. File should still exist if vault error occurs
-	outfile, fileErr := os.Create(fmt.Sprintf("%s/%s", configDir, secretMapping.Local))
-	checkErr(fileErr)
-	defer outfile.Close()
-
-	// set file permissions
-	modErr := outfile.Chmod(secretFileMode)
-	checkErr(modErr)
+	var vaultContentBuffer bytes.Buffer
+	vaultContent := []byte{}
 
 	env := os.Environ()
 	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", vault.Address))
@@ -196,10 +202,21 @@ func (vault *Vault) readSecretMapping(secretMapping SecretMapping, groupMod int)
 	cmd.Env = env
 	cmd.Dir = configDir
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = outfile
+	cmd.Stdout = &vaultContentBuffer
 	cmd.Stderr = os.Stderr
 	commandErr := cmd.Run()
 	checkErr(commandErr)
+
+	if secretMapping.Base64 {
+		data, err := base64.StdEncoding.DecodeString(vaultContentBuffer.String())
+		checkErr(err)
+		vaultContent = []byte(data)
+	} else {
+		vaultContent = []byte(vaultContentBuffer.String())
+	}
+
+	writeErr := ioutil.WriteFile(fmt.Sprintf("%s/%s", configDir, secretMapping.Local), vaultContent, secretFileMode)
+	checkErr(writeErr)
 }
 
 func (vault *Vault) writeSecretMapping(secretMapping SecretMapping, leaseTTL string) {
@@ -207,15 +224,15 @@ func (vault *Vault) writeSecretMapping(secretMapping SecretMapping, leaseTTL str
 		leaseTTL = fmt.Sprintf("ttl=%s", leaseTTL)
 	}
 
-	logInfo("%s write %s value=@%s/%s %s", vault.Bin, secretMapping.Vault, configDir, secretMapping.Local, leaseTTL)
+	logInfo("%s write %s %s value=- (stdin< @%s/%s)", vault.Bin, secretMapping.Vault, leaseTTL, configDir, secretMapping.Local)
 
 	env := os.Environ()
 	env = append(env, fmt.Sprintf("VAULT_ADDR=%s", vault.Address))
 
-	cmd := exec.Command(vault.Bin, "write", secretMapping.Vault, fmt.Sprintf("value=@%s/%s", configDir, secretMapping.Local), leaseTTL)
+	cmd := exec.Command(vault.Bin, "write", secretMapping.Vault, leaseTTL, "value=-")
 	cmd.Env = env
 	cmd.Dir = configDir
-	cmd.Stdin = os.Stdin
+	cmd.Stdin = bytes.NewReader(getFileContentEncoded(secretMapping))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	commandErr := cmd.Run()

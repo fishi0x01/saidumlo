@@ -1,9 +1,10 @@
-## ?.?.? (??? ??, 2017)
+## 0.3.0 (Oct 01, 2017)
 
 IMPROVEMENTS:
 
 * Allow to specify chmod settings of local copy
 * Allow wildcard `*` in paths to describe subtree
+* Support binary data through base64 encoding
 
 ## 0.2.2 (Jul 26, 2017)
 

@@ -36,7 +36,8 @@ type SecretGroup struct {
 
 // SecretMapping ...
 type SecretMapping struct {
-	Local string `yaml:"local"`
-	Vault string `yaml:"vault"`
-	Mod   int    `yaml:"mod"`
+	Local  string `yaml:"local"`
+	Vault  string `yaml:"vault"`
+	Mod    int    `yaml:"mod"`
+	Base64 bool   `yaml:"base64"`
 }

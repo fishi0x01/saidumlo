@@ -12,6 +12,7 @@ Currently, SaiDumLo only interacts as a wrapper for HashiCorp's [vault](https://
 Vault is awesome, but lacks an easy configurable config file to synch your local ops repo with the vault secrets. 
 I always find myself writing and maintaining different `Makefile` commands for different secrets of different stages (qa/staging/live..).
 SaiDumLo lets you easily define and manage different secret groups like `qa` or `prod` in a single yaml config file. 
+It can also handle dir subtrees through wildcards `*` and write/read binary data via base64 encoding.
 
 Example **.secrets.yml:**
 ```
@@ -35,9 +36,15 @@ vaults:
 secrets:
   secretTree:
     lease_ttl: "2h"
-  mappings:
-  - local: "local/secretTree/*"
-    vault: "secret/vaultTree/remote/*"
+    mappings:
+    - local: "local/secretTree/*"
+      vault: "secret/vaultTree/remote/*"
+
+  binaryData:
+    mappings:
+    - local: "some/zip/file.zip"
+      vault: "secret/file.zip"
+      base64: true
 
   qa:
     lease_ttl: "1h"
@@ -87,5 +94,5 @@ Consult the vault [auth documentation](https://www.vaultproject.io/docs/auth/ind
 make verify
 ```
 
-Tested with vault `0.7.0` on Ubuntu Xenial.
+Tested with vault `0.7.0` on Ubuntu Trusty.
 

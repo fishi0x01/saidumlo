@@ -26,6 +26,18 @@ secrets:
     - local: "./createTree/*"
       vault: "secret/secretTree/*"
 
+  zipFileWrite:
+    mappings:
+    - local: "./zipTest.zip"
+      vault: "secret/zipTest.zip"
+      base64: true
+
+  zipFileRead:
+    mappings:
+    - local: "./tmpRead/zipTestRead.zip"
+      vault: "secret/zipTest.zip"
+      base64: true
+
   qa:
     lease_ttl: "1h"
     mappings:
